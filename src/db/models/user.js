@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 let s = {
   name: 'User',
   schema: new mongoose.Schema({
-    username: {
+    id: {
       type: String,
       unique: true
     },
@@ -12,8 +12,7 @@ let s = {
       default: '0'
     },
     addr: {
-      type: String,
-      unique: true
+      type: String
     }
   }, {
     timestamps: true
@@ -22,8 +21,8 @@ let s = {
 
 s.schema.statics.tip = async function (tipper, receiver, amount) {
   return this.validateTipAmount(tipper, amount).then(() => {
-    return this.findOneAndUpdate({ username: tipper.username }, { $inc: { 'balance': -amount } }).then(() => {
-      return this.findOneAndUpdate({ username: receiver.username }, { $inc: { 'balance': amount } })
+    return this.findOneAndUpdate({ id: tipper.id }, { $inc: { 'balance': -amount } }).then(() => {
+      return this.findOneAndUpdate({ id: receiver.id }, { $inc: { 'balance': amount } })
     })
   })
 }
@@ -52,7 +51,7 @@ s.schema.statics.validateDepositAmount = function (user, amount) {
 
 s.schema.statics.validateWithdrawAmount = async function (user, amount) {
   if (isNaN(amount)) return Promise.reject(new Error('That amount is not a number.'))
-  else if (amount < 1) return Promise.reject(new Error('The minimum amount allowed to withdraw is 0.1 PIVX.'))
+  else if (amount < 1) return Promise.reject(new Error('The minimum amount allowed to withdraw is 0.1 THC.'))
   else if (amount > user.balance) return Promise.reject(new Error('You do not have sufficient funds!'))
 
   return Promise.resolve({})

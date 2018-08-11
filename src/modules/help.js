@@ -55,8 +55,7 @@ module.exports = {
                        `\n**Command List**\n` +
                        `Use \`help [command] \` to get more info on a specific command \n` +
                        `For example,  \`help buy\`\n\n` +
-                       '**Core** - `chart` `$`\n' +
-                       '**Simulator** - `newacc` `buy` `sell` `portfolio`\n' +
+                       '**Core** - `tip` `balance` `rain`\n' +
                        '**Fun** - Coming soon\n' +
                        '**Management** - `invite` `upvote` `ping` `setprefix` `stats` \n\n' +
                        `\nSupport: <${process.env.SUPPORT_SERVER}>`

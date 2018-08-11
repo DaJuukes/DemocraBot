@@ -3,6 +3,8 @@ module.exports = async function (msg, bot, channel) {
 
   if (msg.author.bot) return
 
+  await bot.runMessageCheck(msg).catch(console.log) // TODO CATCH
+
   if (msg.isMentioned(bot.user)) {
     if (msg.content.toLowerCase().includes("what's your prefix") || msg.content.toLowerCase().includes('whats your prefix') || msg.content.toLowerCase().includes('help')) {
       bot.getPrefix(msg).then(prefix => {
@@ -13,22 +15,6 @@ module.exports = async function (msg, bot, channel) {
     if (msg.content.toLowerCase().includes('resetprefix') && msg.member.hasPermission('ADMINISTRATOR')) {
       bot.setPrefix(bot.config.prefix, msg.guild)
       msg.reply('I have reset this server\'s prefix to ``' + bot.config.prefix + '``')
-    }
-  } else if (msg.content.startsWith(`$`)) {
-    try {
-      msg.args = msg.content.split(/\s+/g)
-      let ticker = msg.args.shift().slice(1).toLowerCase()
-
-      let tickerExists = bot.getTicker(ticker)
-      if (!tickerExists) {
-        return
-      }
-
-      const emb = await bot.getStockEmbed(ticker)
-
-      msg.channel.send(emb)
-    } catch (e) {
-      bot.error(e)
     }
   } else {
     bot.getPrefix(msg).then(prefix => {

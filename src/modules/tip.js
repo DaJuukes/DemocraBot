@@ -1,21 +1,21 @@
 module.exports = {
-  name: 'buy',
+  name: 'tip',
   type: 'core',
-  usage: 'buy',
-  example: 'buy',
+  usage: 'tip [user] [amount]',
+  example: 'tip @user 2',
   permission: 1,
-  help: 'Buy stock.',
+  help: 'Tip another user.',
   main: function (bot, message) {
     const amount = parseInt(message.args[1])
-    const receiver = message.mentions.users.first()
+    let receiver = message.mentions.members.first()
 
     if (!receiver) return message.channel.send('You must specify a user to tip!')
     else if (!amount || isNaN(amount)) return message.channel.send('That amount is not valid!')
 
     return bot.tip(message.author, receiver, amount).then(() => {
       return message.channel.send(`:white_check_mark: Successfully tipped ${receiver} ${amount} THC!`)
-    }).catch(({message}) => {
-      return message.channel.send(`:x: An error occured: ${message}`)
+    }).catch((err) => {
+      return message.channel.send(`:x: An error occured: ${err.message}`)
     })
   }
 }
