@@ -1,0 +1,12 @@
+language: node_js
+node_js:
+  - "9.7.1"
+script:
+  - cd src && node bot.js --travis
+install: npm install
+notifications:
+  email:
+    recipients:
+      - dajuukes@gmail.com
+    on_success: never # default: change
+    on_failure: never # default: always
