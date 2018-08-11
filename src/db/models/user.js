@@ -38,7 +38,7 @@ s.schema.statics.deposit = async function (user, amount) {
 s.schema.statics.withdraw = async function (user, amount) {
   return new Promise((resolve, reject) => {
     this.validateWithdrawAmount(user, amount).then(() => {
-      this.findOneAndUpdate({ _id: user._id }, { $inc: { 'balance': amount } }).then((r) => resolve(r))
+      this.findOneAndUpdate({ _id: user._id }, { $inc: { 'balance': -amount } }).then((r) => resolve(r))
     }).catch((err) => reject(err))
   })
 }
