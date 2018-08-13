@@ -1,16 +1,20 @@
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 const assert = chai.assert
+const sinon = require('sinon')
 
 const dotenv = require('dotenv')
 
 dotenv.config({ path: './env/vars.env' })
+process.env.RPC_ACC = 'test'
 
 process.env.ENV = 'test'
 
 const models = require('../db')
 const setupDatabase = require('../db/setup')
 const mongoose = require('mongoose')
+
+const PaymentProcessor = require('../lib/payment_processor.js')
 
 chai.use(chaiAsPromised)
 
@@ -27,6 +31,32 @@ const createUser = async () => {
   return r
 }
 
+const createDepositTX = async (addr) => {
+  const random = Math.random().toString()
+
+  return {
+    attrs: {
+      data: {
+        txid: random,
+        recipientAddress: addr,
+        amount: '100'
+      }
+    }
+  }
+}
+
+const createWithdrawTX = async (user) => {
+  return {
+    attrs: {
+      data: {
+        userId: user._id,
+        recipientAddress: user.addr,
+        amount: '100'
+      }
+    }
+  }
+}
+
 const processParallelTransactions = (user, transactions) => {
   const promises = transactions.map((amount) => {
     if (amount < 0) {
@@ -39,10 +69,11 @@ const processParallelTransactions = (user, transactions) => {
   return Promise.all(promises)
 }
 
-before(function () {
-  return setupDatabase().then((result) => {
+before(async function () {
+  return setupDatabase().then(async (result) => {
     global.agenda = result.agenda
-    return mongoose.connection.db.dropDatabase()
+    await mongoose.connection.db.dropDatabase()
+    return true
   }).then(() => {
     return models.User.findOne({}) // initializes model (temp hack)
   })
@@ -121,5 +152,45 @@ describe('Deposit/Withdraw Race Conditions', function () {
       user = await models.User.findOne({ id: user.id })
       assert.equal(user.balance, newBalance)
     })
+  })
+})
+
+describe('Job handling', function () {
+  let txID = Math.random().toString()
+  let fakeFuncOne = sinon.fake.returns(Math.random().toString())
+  let fakeFuncTwo = sinon.fake.resolves([{ account: process.env.RPC_ACC, txid: txID, amount: 100, address: 'test' }])
+  let processor = new PaymentProcessor({ agenda: global.agenda, pivxClient: { send: fakeFuncOne, listTransactions: fakeFuncTwo } })
+  let user
+
+  beforeEach(async function () {
+    user = await createUser()
+  })
+
+  it('should create and execute a deposit order', async function () {
+    const opts = await createDepositTX(user.addr)
+    return processor.performDeposit(opts).then((d) => {
+      return models.User.findOne({ _id: user._id }).then((newUser) => {
+        assert.equal(newUser.balance, 200)
+      })
+    })
+  })
+
+  it('should create and execute a withdraw order', async function () {
+    const opts = await createWithdrawTX(user)
+    return processor.performWithdraw(opts).then((d) => {
+      return models.User.findOne({ _id: user._id }).then((newUser) => {
+        assert.equal(newUser.balance, 0)
+        assert.equal(fakeFuncOne.callCount, 1)
+      })
+    })
+  })
+
+  it('should check for and handle deposits', async function () {
+    const mock = sinon.mock(processor)
+    mock.expects('createDepositOrder').once().withArgs(txID, 'test', 100)
+
+    await processor.checkDeposit()
+
+    mock.verify()
   })
 })

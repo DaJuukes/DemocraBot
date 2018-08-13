@@ -9,9 +9,9 @@ module.exports = bot => {
       const percent = bot.random()
       if (percent) {
       // credit
-        const user = await User.findOne({ id: message.author.id })
+        let user = await User.findOne({ id: message.author.id })
 
-        if (!user) await bot.createUser(message.author, true)
+        if (!user) user = await bot.createUser(message.author, true)
 
         User.deposit(user, reward).then(() => {
           message.react('💰').then(() => {
@@ -22,6 +22,8 @@ module.exports = bot => {
         }).catch(err => {
           reject(err)
         })
+      } else {
+        resolve(true)
       }
     })
   }

@@ -1,3 +1,5 @@
+const Discord = require('discord.js')
+
 module.exports = bot => {
   bot.enabled = function (command, guild) {
     if (command || guild) {
@@ -5,6 +7,20 @@ module.exports = bot => {
     } else {
       return false
     }
+  }
+
+  bot.showUsage = async function (command, msg) {
+    let prefix = await bot.getPrefix(msg)
+    if (command.name === '$') prefix = ''
+
+    let emb = new Discord.RichEmbed()
+
+    emb.addField(prefix + command.usage, command.help)
+    emb.addField('Usage', prefix + command.example)
+
+    emb.setColor(`GOLD`)
+
+    msg.channel.send(emb)
   }
 
   bot.permLevel = function (msg) {
