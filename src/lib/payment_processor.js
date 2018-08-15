@@ -7,6 +7,7 @@ class PaymentProcessor {
   constructor (options) {
     this.agenda = options.agenda
     this.pivxClient = options.pivxClient || new PIVXClient()
+    this.parent = options.parent || null
   }
 
   reportException (e) {
@@ -120,6 +121,10 @@ class PaymentProcessor {
       await Job.findByIdAndUpdate(job.attrs._id, { 'data.transactionStepCompleted': true })
     }
 
+    if (this.parent) {
+      this.parent.send({ id: user.id, amount, txid: sendID })
+    }
+
     return sendID
   }
 
@@ -142,6 +147,10 @@ class PaymentProcessor {
     if (!job.attrs.transactionStepCompleted) {
       await Transaction.create({ userId: user._id, deposit: parseInt(amount), txid: txid })
       await Job.findByIdAndUpdate(job.attrs._id, { 'data.transactionStepCompleted': true })
+    }
+
+    if (this.parent) {
+      this.parent.send({ id: user.id, amount })
     }
 
     return txid

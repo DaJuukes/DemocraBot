@@ -4,6 +4,8 @@ let bot = new Discord.Client()
 bot = require('./funcs')(bot)
 const readdir = require('fs').readdir
 
+const setupDatabase = require('./db/setup')
+
 bot.commands = new Discord.Collection()
 bot.aliases = new Discord.Collection()
 bot.events = new Discord.Collection()
@@ -35,6 +37,12 @@ readdir(srcRoot + '/events/', (err, files) => {
   bot.log(`Events loaded!`)
 })
 
-require('./worker')
+worker.on('message', (data) => {
+  // TODO handle user ID and send message accordingly
+})
+
+setupDatabase().then(result => {
+  global.agenda = result.agenda
+})
 
 if (process.env.TOKEN) bot.login(process.env.TOKEN)
