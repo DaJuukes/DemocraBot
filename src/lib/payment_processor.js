@@ -35,8 +35,7 @@ class PaymentProcessor {
 
   async getAddress (options) {
     try {
-      await this.generateAddress(options.user).catch(this.reportException)
-      return { success: true }
+      return this.pivxClient.accountCreate()
     } catch (e) {
       this.reportException(e)
       return { error: e }
