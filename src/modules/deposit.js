@@ -10,7 +10,7 @@ module.exports = {
 
     if (!addr) return message.channel.send(':x: An error occured while making a new address!')
     else {
-      await bot.updateUserAddress(addr)
+      await bot.updateUserAddress(message.author.id, addr)
       return message.channel.send(':white_check_mark: Your new address is: ' + addr)
     }
   }

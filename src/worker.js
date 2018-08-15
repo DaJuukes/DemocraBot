@@ -8,8 +8,8 @@ const run = () => {
 
     const paymentProcessor = require('./jobs/payment.js')(agenda)
 
-    setInterval(() => {
-      paymentProcessor.checkDeposit()
+    setInterval(async () => {
+      await paymentProcessor.checkDeposit()
     }, 5000)
 
     agenda.on('ready', function () {

@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/DaJuukes/HempCoin-TipBot#readme",
   "dependencies": {
+    "agenda": "^2.0.0",
     "bitcoin-core": "^2.0.0",
     "discord.js": "^11.3.0",
     "dotenv": "^6.0.0",

@@ -47,10 +47,11 @@ class PaymentProcessor {
       const promises = txs.map(tx => {
         return new Promise((resolve, reject) => {
           if (tx.account === process.env.RPC_ACC) {
-            Transaction.findOne({ txid: tx.txid }).then(async result => {
+            Transaction.findOne({ txid: tx.txid }).then(result => {
               if (!result) {
-                await this.createDepositOrder(tx.txid, tx.address, tx.amount)
-                resolve(true)
+                this.createDepositOrder(tx.txid, tx.address, tx.amount).then(() => {
+                  resolve(true)
+                })
               }
             }).catch(reject)
           }
@@ -69,12 +70,10 @@ class PaymentProcessor {
     if (!job) {
       console.log('New transaction! TXID: ' + txID)
 
-      job = this.agenda.create('deposit_order', { recipientAddress: recipientAddress, txid: txID, amount: amount })
+      job = await this.agenda.create('deposit_order', { recipientAddress: recipientAddress, txid: txID, amount: amount })
       return new Promise((resolve, reject) => {
-        job.save((err) => {
-          if (err) return reject(err)
-          return resolve(job)
-        })
+        job.save()
+        resolve()
       })
     }
 

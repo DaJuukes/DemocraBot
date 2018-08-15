@@ -35,4 +35,6 @@ readdir(srcRoot + '/events/', (err, files) => {
   bot.log(`Events loaded!`)
 })
 
+require('./worker')
+
 if (process.env.TOKEN) bot.login(process.env.TOKEN)
