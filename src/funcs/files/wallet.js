@@ -31,4 +31,16 @@ module.exports = bot => {
       }
     })
   }
+
+  bot.depositMessage = async function (data) {
+    const user = await bot.fetchUser(data.id)
+
+    return user.send(`:white_check_mark: Your deposit of **${data.amount} THC** is complete, and funds are ready to use.`)
+  }
+
+  bot.withdrawMessage = async function (data) {
+    const user = await bot.fetchUser(data.id)
+
+    return user.send(`:white_check_mark: Your withdraw of **${data.amount} THC** to ${data.address} is sent. The transaction ID is:\n${data.txid}`)
+  }
 }

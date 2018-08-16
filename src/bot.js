@@ -37,8 +37,10 @@ readdir(srcRoot + '/events/', (err, files) => {
   bot.log(`Events loaded!`)
 })
 
-worker.on('message', (data) => {
+worker.on('message', async (data) => {
   // TODO handle user ID and send message accordingly
+  if (data.deposit) await bot.depositMessage(data)
+  else await bot.withdrawMessage(data)
 })
 
 setupDatabase().then(result => {

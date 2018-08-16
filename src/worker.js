@@ -1,5 +1,5 @@
 const setupDatabase = require('./db/setup')
-process.send('test')
+
 console.log('=== Starting WORKER ===')
 
 const run = () => {

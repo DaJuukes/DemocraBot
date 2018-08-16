@@ -48,11 +48,10 @@ class PaymentProcessor {
       const promises = txs.map(tx => {
         return new Promise((resolve, reject) => {
           if (tx.account === process.env.RPC_ACC) {
-            Transaction.findOne({ txid: tx.txid }).then(result => {
+            Transaction.findOne({ txid: tx.txid }).then(async result => {
               if (!result) {
-                this.createDepositOrder(tx.txid, tx.address, tx.amount).then(() => {
-                  resolve(true)
-                })
+                await this.createDepositOrder(tx.txid, tx.address, tx.amount)
+                resolve(true)
               }
             }).catch(reject)
           }
@@ -60,7 +59,7 @@ class PaymentProcessor {
       })
       return Promise.all(promises)
     }).catch((err) => {
-      console.error('Daemon connection error: ' + err)
+      console.error('Daemon connection error: ' + err.stack)
       return err
     })
   }
@@ -121,9 +120,7 @@ class PaymentProcessor {
       await Job.findByIdAndUpdate(job.attrs._id, { 'data.transactionStepCompleted': true })
     }
 
-    if (this.parent) {
-      this.parent.send({ id: user.id, amount, txid: sendID })
-    }
+    if (process.send) process.send({ id: user.id, amount, address: recipientAddress, txid: sendID })
 
     return sendID
   }
@@ -149,9 +146,7 @@ class PaymentProcessor {
       await Job.findByIdAndUpdate(job.attrs._id, { 'data.transactionStepCompleted': true })
     }
 
-    if (this.parent) {
-      this.parent.send({ id: user.id, amount })
-    }
+    if (process.send) process.send({ id: user.id, amount, deposit: true })
 
     return txid
   }

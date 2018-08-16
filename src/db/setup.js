@@ -9,7 +9,7 @@ module.exports = async (options = {}) => {
   }
 
   let mongoConnectionString = `mongodb://localhost:27017/${dbName}`
-  let db = await mongoose.connect(mongoConnectionString)
+  let db = await mongoose.connect(mongoConnectionString, { useNewUrlParser: true })
   let agenda = new Agenda({ mongo: db.connection, db: { collection: 'jobs' } })
 
   return {
