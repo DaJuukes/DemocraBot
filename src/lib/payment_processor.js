@@ -97,6 +97,12 @@ class PaymentProcessor {
     // Step 1: Process transaction
     let sendID
 
+    // Step 2: Update user balance
+    if (!job.attrs.userStepCompleted) {
+      await User.withdraw(user, amount)
+      await Job.findByIdAndUpdate(job.attrs._id, { 'data.userStepCompleted': true })
+    }
+
     if (job.attrs.sendStepCompleted) {
       sendID = job.attrs.txid
     } else {
@@ -105,12 +111,6 @@ class PaymentProcessor {
       if (sent.error) throw new Error(sent.error)
       await Job.findOneAndUpdate({ _id: job.attrs._id }, { 'data.sendStepCompleted': true, 'data.txid': sent })
       sendID = sent
-    }
-
-    // Step 2: Update user balance
-    if (!job.attrs.userStepCompleted) {
-      await User.withdraw(user, amount)
-      await Job.findByIdAndUpdate(job.attrs._id, { 'data.userStepCompleted': true })
     }
 
     // Step 3: Record Transaction

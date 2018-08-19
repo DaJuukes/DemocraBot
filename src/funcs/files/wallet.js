@@ -18,15 +18,11 @@ module.exports = bot => {
       let user = await User.findOne({ id })
       if (!user) reject(new Error('You did not have a tipbot account, so I created one for you!'))
       else {
-        User.withdraw(user, amount).then(() => {
-          const job = agenda.create('withdraw_order', { userId: user._id, recipientAddress: addr, amount: amount })
-          job.save().then(result => {
-            resolve(true)
-          }).catch(err => {
-            if (err) reject(new Error('Error saving Agenda job'))
-          })
+        const job = agenda.create('withdraw_order', { userId: user._id, recipientAddress: addr, amount: amount })
+        job.save().then(result => {
+          resolve(true)
         }).catch(err => {
-          reject(err)
+          if (err) reject(new Error('Error saving Agenda job'))
         })
       }
     })

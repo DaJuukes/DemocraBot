@@ -8,7 +8,7 @@ module.exports = {
   main: async function (bot, message) {
     const amount = parseInt(message.args[0])
     const addr = message.args[1]
-    console.log(addr.length)
+
     if (!amount || isNaN(amount)) return message.channel.send(':x: That amount is not valid.')
     else if (!addr || (addr.length !== 34)) return message.channel.send(':x: That address is not valid.')
 
