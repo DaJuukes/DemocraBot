@@ -3,8 +3,10 @@ const processor = new Processor({ agenda: global.agenda })
 const {User} = require('../../db')
 
 module.exports = bot => {
-  bot.getNewAddress = async function () {
-    return processor.getAddress()
+  bot.getNewAddress = async function (id) {
+    const user = await User.findOne({ id })
+    if (user && user.addr) return Promise.resolve({addr: user.addr, old: true})
+    else return processor.getAddress()
   }
 
   bot.updateUserAddress = async function (id, addr) {
