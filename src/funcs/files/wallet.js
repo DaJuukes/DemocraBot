@@ -4,12 +4,17 @@ const {User} = require('../../db')
 
 module.exports = bot => {
   bot.getNewAddress = async function (id) {
-    return processor.getAddress()
+    const user = await User.findOne({ id })
+    if (user && user.addr) return Promise.resolve({addr: user.addr, old: true})
+    else {
+      const addr = await processor.getAddress()
+      return { addr, old: false }
+    }
   }
 
   bot.updateUserAddress = async function (id, addr) {
     let user = await User.findOne({ id })
-    if (!user) user = await bot.createUser({id}, false)
+    if (!user || user.addr) user = await bot.createUser({id}, false)
     return User.findOneAndUpdate({ id }, { addr })
   }
 
