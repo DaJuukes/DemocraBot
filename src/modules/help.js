@@ -4,13 +4,6 @@ const readdirSync = require('fs').readdirSync
 const buildCommands = function () {
   const commands = {}
 
-  commands['$'] = {
-    name: '$',
-    usage: '$[coin]',
-    example: '$aapl',
-    help: 'Get all price data for a certain stock - always use $ as prefix'
-  }
-
   const files = readdirSync(srcRoot + '/modules/')
 
   files.forEach((file) => {
@@ -50,14 +43,10 @@ module.exports = {
       if (gName === 'This DM') message.channel.send(`Sending you commands in DM...`)
 
       let text = `**${gName}'s prefix is ${prefix}**\n\n` +
-                       `\nInvite this bot to your server [here](${process.env.BOT_INVITE})\n\n` +
-                       `\nUpvote the bot on DBL [here](${process.env.UPVOTE_LINK})` +
                        `\n**Command List**\n` +
                        `Use \`help [command] \` to get more info on a specific command \n` +
-                       `For example,  \`help buy\`\n\n` +
+                       `For example,  \`help tip\`\n\n` +
                        '**Core** - `tip` `balance` `rain`\n' +
-                       '**Fun** - Coming soon\n' +
-                       '**Management** - `invite` `upvote` `ping` `setprefix` `stats` \n\n' +
                        `\nSupport: <${process.env.SUPPORT_SERVER}>`
 
       let emb = new Discord.RichEmbed()

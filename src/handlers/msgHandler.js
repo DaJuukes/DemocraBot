@@ -38,15 +38,13 @@ module.exports = async function (msg, bot, channel) {
             msg.reply('you do not have permission to do this!')
           } else if (bot.enabled(cmd)) {
             bot.logCommand(command, msg.content, msg.author.username, msg.channel.name, msg.guild.name)
-            try {
-              cmd.main(bot, msg)
-            } catch (err) {
+            cmd.main(bot, msg).catch(err => {
               bot.error(err)
-              msg.channel.send('Oh no! We encountered an error! Join our support server https://discord.gg/Xg5V8mn if it persists.')
-            }
+              msg.channel.send(':x: We encountered an error!')
+            })
           }
         } catch (err) {
-          msg.channel.send('Oh no! We encountered an error! Join our support server https://discord.gg/Xg5V8mn if it persists.')
+          msg.channel.send(':x: We encountered an error!')
           bot.error(err)
         }
       }
