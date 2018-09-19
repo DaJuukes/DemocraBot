@@ -24,21 +24,10 @@ module.exports = bot => {
   }
 
   bot.permLevel = function (msg) {
-    const {author, guild, member} = msg
+    const {author} = msg
 
-    if (bot.config.owner.indexOf(msg.author.id) > -1) {
+    if (process.env.OWNER && author && process.env.OWNER === author.id) {
       return 6
-    }
-    if (msg.channel.type == 'dm' || !member) return 1
-
-    if (author && guild && guild.owner && author.id === guild.owner.id) {
-      return 5
-    } else if (member.hasPermission('MANAGE_GUILD')) {
-      return 4
-    } else if (member.hasPermission('MANAGE_ROLES_OR_PERMISSIONS')) {
-      return 3
-    } else if (member.hasPermission('MANAGE_MESSAGES')) {
-      return 2
     } else {
       return 1
     }
