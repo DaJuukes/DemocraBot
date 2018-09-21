@@ -39,6 +39,7 @@ readdir(srcRoot + '/events/', (err, files) => {
 
 worker.on('message', async (data) => {
   // TODO handle user ID and send message accordingly
+  console.log(data)
   if (data.deposit) await bot.depositMessage(data)
   else await bot.withdrawMessage(data)
 })

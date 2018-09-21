@@ -1,4 +1,3 @@
-
 module.exports = {
   name: 'deposit',
   type: 'core',
@@ -8,7 +7,6 @@ module.exports = {
   help: 'Get a new address to deposit funds into.',
   main: async function (bot, message) {
     bot.getNewAddress(message.author.id).then(async (addr) => {
-      console.log(addr)
       if (!addr || addr === undefined || addr === 'undefined') return message.channel.send(':x: An error occured while making a new address!')
       else {
         if (!addr.old) {

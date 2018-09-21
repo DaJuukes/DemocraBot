@@ -15,13 +15,7 @@ class PaymentProcessor {
   }
 
   async performWithdraw (options) {
-    try {
-      await this.withdraw(options)
-      return { success: true }
-    } catch (e) {
-      this.reportException(e)
-      return { error: e }
-    }
+    return this.withdraw(options).then(() => { return { success: true } }).catch(err => { return {error: err} })
   }
 
   async performDeposit (options) {
@@ -92,35 +86,60 @@ class PaymentProcessor {
     // Validate if user is present
     let user = await User.findById(userId)
     if (!user) throw new Error(`User ${userId} not found`)
-    await User.validateWithdrawAmount(user, amount)
 
     // Step 1: Process transaction
     let sendID
 
     // Step 2: Update user balance
     if (!job.attrs.userStepCompleted) {
-      await User.withdraw(user, amount)
-      await Job.findByIdAndUpdate(job.attrs._id, { 'data.userStepCompleted': true })
+      await new Promise((resolve, reject) => {
+        User.withdraw(user, amount).then(() => {
+          Job.findByIdAndUpdate(job.attrs._id, { 'data.userStepCompleted': true }).then(() => {
+            resolve(true)
+          }).catch(err => {
+            reject(err)
+          })
+        }).catch(err => {
+          reject(err)
+        })
+      }).catch(err => {
+        process.send({ id: user.id, amount, address: recipientAddress, txid: null, error: err.message })
+        throw new Error(err)
+      })
     }
 
     if (job.attrs.sendStepCompleted) {
       sendID = job.attrs.txid
     } else {
-      const sent = await this.pivxClient.send(recipientAddress, amount)
+      const sent = new Promise(resolve => resolve('test')) // this.pivxClient.send(recipientAddress, amount)
 
-      if (sent.error) throw new Error(sent.error)
-      await Job.findOneAndUpdate({ _id: job.attrs._id }, { 'data.sendStepCompleted': true, 'data.txid': sent })
-      sendID = sent
+      await new Promise((resolve, reject) => {
+        sent.then((txid) => {
+          resolve(txid)
+        }).catch(async err => {
+          if (err) {
+            await User.deposit(user, amount)
+            process.send({ id: user.id, amount, address: recipientAddress, txid: null, error: err.message })
+            reject(err)
+          }
+        })
+      }).then(async (txid) => {
+        await Job.findOneAndUpdate({ _id: job.attrs._id }, { 'data.sendStepCompleted': true, 'data.txid': txid })
+        sendID = txid
+      }).catch(err => {
+        throw new Error(err)
+      })
     }
 
-    // Step 3: Record Transaction
     if (!job.attrs.transactionStepCompleted) {
       // console.log(sendID);
       await Transaction.create({ userId: userId, withdraw: amount, txid: sendID })
       await Job.findByIdAndUpdate(job.attrs._id, { 'data.transactionStepCompleted': true })
     }
 
-    if (process.send) process.send({ id: user.id, amount, address: recipientAddress, txid: sendID })
+    // Step 3: Record Transaction
+
+    await new Promise(resolve => { process.send({ id: user.id, amount, address: recipientAddress, txid: sendID }); resolve() })
 
     return sendID
   }

@@ -1,4 +1,4 @@
-const {Server} = require('../../db')
+const {Server, User} = require('../../db')
 
 module.exports = bot => {
   bot.syncServers = async function () {
@@ -33,5 +33,9 @@ module.exports = bot => {
 
   bot.setPrefix = async function (prefix, guild) {
     return Server.findOneAndUpdate({id: guild.id}, {prefix})
+  }
+
+  bot.getMongoUser = async function (userID) {
+    return User.findOne({ id: userID })
   }
 }
