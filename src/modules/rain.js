@@ -10,7 +10,12 @@ module.exports = {
 
     if (!amount || isNaN(amount)) return message.channel.send('That amount is not valid!')
 
-    const members = message.channel.members.filter(m => m.presence.status === 'online')
+    const role = message.mentions.roles.first()
+
+    let members
+
+    if (role) members = role.members.filter(m => m.presence.status === 'online')
+    else members = message.channel.members.filter(m => m.presence.status === 'online')
 
     return bot.rain(message.author, members, amount).then(() => {
       return message.channel.send(`:white_check_mark: Successfully rained ${amount} THC each to ${members.size} users in this channel!`)
