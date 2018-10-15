@@ -4,7 +4,7 @@ const readdirSync = require('fs').readdirSync
 const buildCommands = function () {
   const commands = {}
 
-  const files = readdirSync(srcRoot + '/modules/')
+  const files = readdirSync('./modules')
 
   files.forEach((file) => {
     var command = require(`./${file}`)
@@ -45,8 +45,9 @@ module.exports = {
       let text = `**${gName}'s prefix is ${prefix}**\n\n` +
                        `\n**Command List**\n` +
                        `Use \`help [command] \` to get more info on a specific command \n` +
-                       `For example,  \`help tip\`\n\n` +
-                       '**Core** - `tip` `balance` `rain`\n' +
+                       `For example,  \`help despair\`\n\n` +
+                       '**Core** - `despair`\n' +
+                       '**Utility** - `ping` `eval` `reload` `reset` `setprefix`' +
                        `\nSupport: <${process.env.SUPPORT_SERVER}>`
 
       let emb = new Discord.RichEmbed()

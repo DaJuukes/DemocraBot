@@ -1,4 +1,4 @@
-const {exec, execSync} = require('child_process')
+const { exec, execSync } = require('child_process')
 module.exports = {
   name: 'restart',
   type: 'owner',

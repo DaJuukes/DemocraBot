@@ -4,7 +4,7 @@ module.exports = {
   usage: 'reload [commandname]',
   permission: 6,
   help: 'Reloads a command.',
-  main: function (bot, msg) {
+  main: async function (bot, msg) {
     try {
       if (msg.content === 'reload') return bot.showUsage(this, msg)
       else if (bot.permLevel(msg) !== 6) return msg.channel.send('you do not have permission to reload a command!')

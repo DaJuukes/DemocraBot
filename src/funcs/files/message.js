@@ -24,7 +24,7 @@ module.exports = bot => {
   }
 
   bot.permLevel = function (msg) {
-    const {author} = msg
+    const { author } = msg
 
     if (process.env.OWNER && author && process.env.OWNER === author.id) {
       return 6

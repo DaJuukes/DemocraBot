@@ -10,7 +10,7 @@ bot.commands = new Discord.Collection()
 bot.aliases = new Discord.Collection()
 bot.events = new Discord.Collection()
 
-readdir(srcRoot + '/modules/', (err, files) => {
+readdir('./modules/', (err, files) => {
   if (err) throw err
   bot.handleMessage = require('./handlers/msgHandler.js')
   bot.log(`Loading ${files.length} commands!`)
@@ -25,7 +25,7 @@ readdir(srcRoot + '/modules/', (err, files) => {
   bot.log(`Commands loaded!`)
 })
 
-readdir(srcRoot + '/events/', (err, files) => {
+readdir('./events/', (err, files) => {
   if (err) throw err
   bot.log(`Loading ${files.length} events!`)
   files.forEach(file => {
@@ -35,12 +35,6 @@ readdir(srcRoot + '/events/', (err, files) => {
     })
   })
   bot.log(`Events loaded!`)
-})
-
-worker.on('message', async (data) => {
-  // TODO handle user ID and send message accordingly
-  if (data.deposit) await bot.depositMessage(data)
-  else await bot.withdrawMessage(data)
 })
 
 setupDatabase().then(result => {

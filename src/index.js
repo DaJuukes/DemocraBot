@@ -3,8 +3,6 @@ const Discord = require('discord.js')
 const path = require('path')
 global.srcRoot = path.resolve(__dirname)
 
-const {fork} = require('child_process')
-
 const isTravisBuild = process.argv[2] && process.argv[2] === '--travis'
 
 const dotenv = require('dotenv')
@@ -18,10 +16,8 @@ if (!process.env.TOKEN) {
   process.exit(0)
 }
 
-global.worker = fork('./worker')
-
 if (process.env.SHARDS !== '0') {
-  const Manager = new Discord.ShardingManager(srcRoot + '/bot.js', { totalShards: parseInt(process.env.SHARDS), token: process.env.TOKEN })
+  const Manager = new Discord.ShardingManager('./bot.js', { totalShards: parseInt(process.env.SHARDS), token: process.env.TOKEN })
   Manager.spawn()
 } else {
   require('./bot.js')
